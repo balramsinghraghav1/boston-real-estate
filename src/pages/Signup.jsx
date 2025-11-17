@@ -1,0 +1,5 @@
+
+import React,{useState} from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../auth.jsx';
+export default function Signup(){ const [email,setEmail]=useState(''); const [pw,setPw]=useState(''); const [role,setRole]=useState('buyer'); const { signup } = useAuth(); const nav = useNavigate(); const go=async(e)=>{ e.preventDefault(); try{ await signup(email,pw,role); nav('/'); }catch(_){ alert('Signup failed'); } }; return (<div className="card" style={{maxWidth:420}}><h2>Signup</h2><form onSubmit={go}><div className="form-row"><label>Email</label><input value={email} onChange={e=>setEmail(e.target.value)}/></div><div className="form-row"><label>Password</label><input type="password" value={pw} onChange={e=>setPw(e.target.value)}/></div><div className="form-row"><label>Role</label><select value={role} onChange={e=>setRole(e.target.value)}><option value="buyer">buyer</option><option value="dealer">dealer</option></select></div><button>Signup</button></form></div>); }
