@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../auth.jsx";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
-import bg from "../assets/web_bg.png";
+import bg from "../assets/web_bg2.png";
 
 export default function Profile() {
   const { user, userDoc } = useAuth();
