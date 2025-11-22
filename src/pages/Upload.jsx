@@ -1,49 +1,42 @@
 import React, { useState } from "react";
-import { doc, setDoc } from "firebase/firestore";
 import { db } from "../firebase";
+import { collection, addDoc } from "firebase/firestore";
 import { useAuth } from "../auth.jsx";
 import bg from "../assets/web_bg2.png";
 
 export default function Upload() {
   const { user, userDoc } = useAuth();
-
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
   const [address, setAddress] = useState("");
   const [description, setDescription] = useState("");
   const [img, setImg] = useState("");
 
-  const uploadProperty = async () => {
-    if (!user || userDoc?.role !== "dealer") {
-      alert("Only dealers can upload properties.");
-      return;
-    }
+  const submit = async (e) => {
+    e.preventDefault();
 
-    if (!title || !price || !address || !img) {
-      alert("Please fill all required fields.");
-      return;
-    }
+    if (!user) return alert("Please login first.");
+    if (userDoc?.role !== "dealer")
+      return alert("Only dealers can upload properties.");
 
-    const id = Date.now().toString();
-
-    await setDoc(doc(db, "properties", id), {
+    await addDoc(collection(db, "properties"), {
       title,
       price,
       address,
-      img,
       description,
+      img,
       status: "unsold",
       dealerEmail: user.email,
-      dealerId: user.uid,
+      owner: user.uid,
       createdAt: new Date().toISOString(),
     });
 
-    alert("Property uploaded!");
+    alert("Property Uploaded Successfully!");
     setTitle("");
     setPrice("");
     setAddress("");
-    setImg("");
     setDescription("");
+    setImg("");
   };
 
   return (
@@ -51,57 +44,68 @@ export default function Upload() {
       className="page-wrapper"
       style={{
         backgroundImage: `url(${bg})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backdropFilter: "blur(6px)",
       }}
     >
-      <div className="glass-card" style={{ maxWidth: 600, margin: "auto" }}>
+      <div className="glass-card" style={{ maxWidth: 650, margin: "auto" }}>
         <h2>Upload Property</h2>
 
-        <input
-          placeholder="Property Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
+        <form onSubmit={submit}>
+          <label>Property Title</label>
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+            placeholder="Beautiful 3BHK Apartment"
+          />
 
-        <input
-          placeholder="Price (₹)"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-        />
+          <label>Price (₹)</label>
+          <input
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            required
+            placeholder="2500000"
+          />
 
-        <input
-          placeholder="Address"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-        />
+          <label>Address</label>
+          <input
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            required
+            placeholder="Boston, MA"
+          />
 
-        <textarea
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          style={{
-            width: "100%",
-            height: "120px",
-            marginTop: 10,
-            borderRadius: 10,
-            padding: 12,
-            background: "rgba(255,255,255,0.2)",
-            color: "white",
-            backdropFilter: "blur(8px)",
-            border: "none",
-          }}
-        ></textarea>
+          <label>Full Description</label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={4}
+            style={{
+              width: "100%",
+              marginTop: 8,
+              padding: 14,
+              borderRadius: 10,
+              background: "rgba(255,255,255,0.18)",
+              color: "white",
+              outline: "none",
+              border: "none",
+            }}
+            placeholder="Describe the property details and features..."
+          ></textarea>
 
-        <input
-          placeholder="Image URL"
-          value={img}
-          onChange={(e) => setImg(e.target.value)}
-        />
+          <label>Property Image URL</label>
+          <input
+            value={img}
+            onChange={(e) => setImg(e.target.value)}
+            required
+            placeholder="https://example.com/house.jpg"
+          />
 
-        <button onClick={uploadProperty} style={{ marginTop: 14 }}>
-          Upload Property
-        </button>
+          <button style={{ marginTop: 20 }}>Upload Property</button>
+        </form>
       </div>
     </div>
   );
 }
-
