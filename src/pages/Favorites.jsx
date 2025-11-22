@@ -6,128 +6,101 @@ import { Link } from "react-router-dom";
 import bg from "../assets/web_bg.png";
 
 export default function Favorites() {
-  const { user, userDoc } = useAuth();
+  const { user } = useAuth();
   const [favIds, setFavIds] = useState([]);
-  const [propsList, setPropsList] = useState([]);
+  const [favProps, setFavProps] = useState([]);
 
-  // Read user's favorite document IDs
+  // Get list of favorite IDs
   useEffect(() => {
     if (!user) return;
 
-    const favCol = collection(db, "users", user.uid, "favorites");
-    const unsub = onSnapshot(favCol, (snap) => {
-      const ids = snap.docs.map((d) => d.id);
-      setFavIds(ids);
+    const ref = collection(db, "users", user.uid, "favorites");
+    const unsub = onSnapshot(ref, (snap) => {
+      setFavIds(snap.docs.map((d) => d.id));
     });
 
     return () => unsub();
   }, [user]);
 
-  // Fetch actual property documents
+  // Load each favorite property
   useEffect(() => {
-    if (favIds.length === 0) {
-      setPropsList([]);
+    if (!favIds.length) {
+      setFavProps([]);
       return;
     }
 
-    const load = async () => {
-      let temp = [];
-      for (const id of favIds) {
-        const p = await getDoc(doc(db, "properties", id));
-        if (p.exists()) temp.push({ id: p.id, ...p.data() });
-      }
-      setPropsList(temp);
-    };
+    let mounted = true;
 
-    load();
+    (async () => {
+      const arr = [];
+      for (const id of favIds) {
+        const snap = await getDoc(doc(db, "properties", id));
+        if (snap.exists()) {
+          arr.push({ id: snap.id, ...snap.data() });
+        }
+      }
+      if (mounted) setFavProps(arr);
+    })();
+
+    return () => (mounted = false);
   }, [favIds]);
 
-  // Remove from favorites
-  const removeFav = async (id) => {
+  const removeFavorite = async (id) => {
+    if (!user) return;
     await deleteDoc(doc(db, "users", user.uid, "favorites", id));
   };
 
   if (!user) {
     return (
-      <div className="page-wrapper">
-        <h2>Please login to view favorites</h2>
+      <div className="page-wrapper" style={{ backgroundImage: `url(${bg})` }}>
+        <div className="glass-card">Please login to view favorites.</div>
       </div>
     );
   }
 
   return (
-    <div
-      className="page-wrapper"
-      style={{
-        backgroundImage: `url(${bg})`,
-      }}
-    >
-      <h2>My Favorites</h2>
-
-      <div className="glass-card" style={{ marginBottom: 20 }}>
-        <p>These are the properties you have saved.</p>
-      </div>
-
-      {propsList.length === 0 && (
-        <div className="glass-card">
-          <p>No favorite properties yet.</p>
-        </div>
-      )}
+    <div className="page-wrapper" style={{ backgroundImage: `url(${bg})` }}>
+      <h2 style={{ marginBottom: 20 }}>My Favorites</h2>
 
       <div className="favorites-grid">
-        {propsList.map((p) => (
-          <div key={p.id} className="fav-card glass-card">
-            <img
-              src={
-                p.img ||
-                "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200&q=80"
-              }
-              alt=""
-            />
+        {favProps.length === 0 && (
+          <div className="glass-card">No favorites yet.</div>
+        )}
+
+        {favProps.map((p) => (
+          <div key={p.id} className="glass-card fav-card">
+            <img src={p.img} alt="" />
 
             <div style={{ flex: 1 }}>
               <Link
                 to={`/properties/${p.id}`}
                 style={{ textDecoration: "none", color: "inherit" }}
               >
-                <h3 style={{ margin: 0 }}>{p.title}</h3>
+                <h3 style={{ marginBottom: 6 }}>{p.title}</h3>
               </Link>
-
-              <div className="small" style={{ marginTop: 4 }}>
+              <div className="small">
                 ₹ {p.price} • {p.address}
               </div>
 
-              {p.status === "sold" && (
-                <span
-                  className="badge-sold"
-                  style={{
-                    display: "inline-block",
-                    marginTop: 8,
-                    background: "#27ae60",
-                    padding: "4px 10px",
-                    borderRadius: 6,
-                    fontSize: 12,
-                    fontWeight: 600,
-                  }}
-                >
-                  SOLD
-                </span>
-              )}
-
               <button
-                onClick={() => removeFav(p.id)}
+                onClick={() => removeFavorite(p.id)}
                 style={{
                   marginTop: 12,
-                  background: "#ff3f6c",
+                  background: "#ff3c6c",
                 }}
               >
                 Remove
               </button>
             </div>
+
+            {p.status === "sold" && (
+              <span className="badge-sold" style={{ marginLeft: 10 }}>
+                SOLD
+              </span>
+            )}
           </div>
         ))}
       </div>
     </div>
   );
 }
-
