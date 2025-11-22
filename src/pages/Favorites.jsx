@@ -3,7 +3,7 @@ import { collection, onSnapshot, doc, getDoc, deleteDoc } from "firebase/firesto
 import { db } from "../firebase";
 import { useAuth } from "../auth.jsx";
 import { Link } from "react-router-dom";
-import bg from "../assets/web_bg.png";
+import bg from "../assets/web_bg2.png";
 
 export default function Favorites() {
   const { user } = useAuth();
