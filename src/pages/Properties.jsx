@@ -136,9 +136,11 @@ export default function Properties() {
               <div style={{ padding: 14 }}>
                 <h3 style={{ margin: 0, fontSize: 20 }}>{p.title}</h3>
 
-                <div className="meta" style={{ marginTop: 6 }}>
-                  <strong>₹ {p.price}</strong>
-                  <span className="small">{p.address}</span>
+          <div style={{ marginTop: 6 }}>
+              <strong style={{ display: "block" }}>₹ {p.price}</strong>
+                  <span className="small" style={{ display: "block", marginTop: 6 }}>
+            {p.address}
+                  </span>
                 </div>
               </div>
             </Link>
