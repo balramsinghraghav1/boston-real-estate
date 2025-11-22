@@ -75,7 +75,7 @@ export default function Detail() {
         <h2 style={{ marginTop: 20 }}>{p.title}</h2>
 
         <p style={{ fontSize: 18 }}>
-          <strong>₹ {p.price}</strong>
+          <strong>$ {p.price}</strong>
         </p>
 
         <p className="small" style={{ marginTop: 4 }}>
