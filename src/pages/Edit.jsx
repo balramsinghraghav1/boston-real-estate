@@ -2,117 +2,133 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
+import { useAuth } from "../auth.jsx";
 import bg from "../assets/web_bg2.png";
 
 export default function Edit() {
   const { id } = useParams();
   const nav = useNavigate();
+  const { user, userDoc } = useAuth();
 
-  const [data, setData] = useState(null);
+  const [p, setP] = useState(null);
+  const [title, setTitle] = useState("");
+  const [price, setPrice] = useState("");
+  const [address, setAddress] = useState("");
+  const [img, setImg] = useState("");
+  const [status, setStatus] = useState("available");
 
-  // Fetch existing property data
+  // Load existing property data
   useEffect(() => {
-    const load = async () => {
+    if (!id) return;
+
+    (async () => {
       const snap = await getDoc(doc(db, "properties", id));
-      if (snap.exists()) setData({ id: snap.id, ...snap.data() });
-    };
-    load();
+      if (snap.exists()) {
+        const d = snap.data();
+        setP(d);
+        setTitle(d.title || "");
+        setPrice(d.price || "");
+        setAddress(d.address || "");
+        setImg(d.img || "");
+        setStatus(d.status || "available");
+      }
+    })();
   }, [id]);
 
-  const updateNow = async () => {
+  if (!p) return <div className="card">Loading...</div>;
+  if (!user) return <div className="card">Please login</div>;
+  if (!(user.uid === p.owner || userDoc?.role === "dealer"))
+    return <div className="card">Not allowed</div>;
+
+  // Save updates
+  const save = async (e) => {
+    e.preventDefault();
     await updateDoc(doc(db, "properties", id), {
-      title: data.title,
-      price: data.price,
-      address: data.address,
-      description: data.description,
-      img: data.img,
-      status: data.status, // sold OR unsold
+      title,
+      price,
+      address,
+      img,
+      status,
     });
-
-    alert("Property Updated");
-    nav(`/properties/${id}`);
+    alert("Property updated!");
+    nav("/dashboard");
   };
-
-  if (!data)
-    return (
-      <div className="page-wrapper">
-        <h2>Loading...</h2>
-      </div>
-    );
 
   return (
     <div
       className="page-wrapper"
-      style={{ backgroundImage: `url(${bg})` }}
+      style={{
+        backgroundImage: `url(${bg})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        minHeight: "100vh",
+      }}
     >
-      <div className="glass-card">
-        <h2>Edit Property</h2>
+      <div className="glass-card" style={{ maxWidth: 760, margin: "auto" }}>
+        <h2 style={{ marginBottom: 12 }}>Edit Property</h2>
 
-        {/* TITLE */}
-        <label className="small">Title</label>
-        <input
-          value={data.title}
-          onChange={(e) => setData({ ...data, title: e.target.value })}
-        />
+        <form onSubmit={save}>
+          {/* TITLE */}
+          <div className="form-row">
+            <label>Title</label>
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter title"
+            />
+          </div>
 
-        {/* PRICE */}
-        <label className="small">Price</label>
-        <input
-          value={data.price}
-          onChange={(e) => setData({ ...data, price: e.target.value })}
-        />
+          {/* PRICE */}
+          <div className="form-row">
+            <label>Price</label>
+            <input
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              placeholder="Enter price"
+            />
+          </div>
 
-        {/* ADDRESS */}
-        <label className="small">Address</label>
-        <input
-          value={data.address}
-          onChange={(e) => setData({ ...data, address: e.target.value })}
-        />
+          {/* ADDRESS */}
+          <div className="form-row">
+            <label>Address</label>
+            <input
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="Enter address"
+            />
+          </div>
 
-        {/* IMAGE URL */}
-        <label className="small">Image URL</label>
-        <input
-          value={data.img}
-          onChange={(e) => setData({ ...data, img: e.target.value })}
-        />
+          {/* IMAGE URL */}
+          <div className="form-row">
+            <label>Image URL</label>
+            <input
+              value={img}
+              onChange={(e) => setImg(e.target.value)}
+              placeholder="https://example.com/image.jpg"
+            />
+          </div>
 
-        {/* DESCRIPTION */}
-        <label className="small">Description</label>
-        <textarea
-          style={{
-            width: "100%",
-            minHeight: "120px",
-            padding: "12px",
-            borderRadius: "10px",
-            background: "rgba(255,255,255,0.22)",
-            color: "white",
-            border: "none",
-            outline: "none",
-          }}
-          value={data.description}
-          onChange={(e) =>
-            setData({ ...data, description: e.target.value })
-          }
-        ></textarea>
+          {/* STATUS */}
+          <div className="form-row">
+            <label>Status</label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              style={{
+                color: "#000", // ensure visible text
+                background: "#fff",
+              }}
+            >
+              <option value="available">Available</option>
+              <option value="sold">Sold</option>
+            </select>
+          </div>
 
-        {/* STATUS (Sold / Unsold) */}
-        <label className="small">Status</label>
-        <select
-          value={data.status}
-          onChange={(e) => setData({ ...data, status: e.target.value })}
-        >
-          <option value="unsold">Unsold</option>
-          <option value="sold">Sold</option>
-        </select>
-
-        {/* UPDATE BUTTON */}
-        <button
-          style={{ marginTop: 20 }}
-          onClick={updateNow}
-        >
-          Save Changes
-        </button>
+          <button style={{ marginTop: 16 }}>Save Changes</button>
+        </form>
       </div>
     </div>
   );
 }
+
