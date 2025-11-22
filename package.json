@@ -1,5 +1,5 @@
 {
-  "name": "boston-real-final-complete",
+  "name": "boston-real-estate",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -8,13 +8,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.14.1",
-    "firebase": "^10.12.0"
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-router-dom": "6.14.1",
+    "firebase": "10.16.0"
   },
   "devDependencies": {
-    "vite": "^4.5.0",
-    "@vitejs/plugin-react": "^4.0.0"
+    "vite": "4.5.4"
   }
 }
