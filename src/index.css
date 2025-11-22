@@ -1,208 +1,259 @@
-/* index.css - full updated */
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root{
-  --header-h: 68px;
-  --glass-bg: rgba(255,255,255,0.12);
-  --accent1: #8b5bff;
-  --accent2: #5a4bff;
-  --text: #fff;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* base body */
 body {
   font-family: "Poppins", sans-serif;
+  color: #fff;
   background: #000;
-  color: var(--text);
   overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-/* -------------------------------------------
-  Page wrapper — background image sits in ::before
-   - we use ::before for the bg image and blur it
-   - content sits in .page-content above it
----------------------------------------------*/
+/* =====================================================
+   GLOBAL PAGE WRAPPER  
+   Every page except Home has blurred background
+===================================================== */
 .page-wrapper {
-  position: relative;
   min-height: 100vh;
-  padding-top: var(--header-h); /* leave room for sticky header */
-  overflow: hidden;
-}
-
-/* the blurred background image layer */
-.page-wrapper::before {
-  content: "";
-  position: fixed;             /* fixed so it stays while scrolling */
-  inset: 0;
-  z-index: -2;
-  background-image: url("/src/assets/web_bg.png");
+  padding: 40px;
+  background-image: url("./assets/web_bg.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  filter: blur(12px) saturate(1.05) contrast(1.02);
-  transform: scale(1.03);      /* avoid harsh edges after blur */
+  backdrop-filter: blur(14px);
 }
 
-/* subtle dark overlay over the blurred bg */
-.page-wrapper::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  background: linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.35));
+/* Home page – no blur */
+.home-page {
+  backdrop-filter: blur(0px) !important;
 }
 
-/* For Home - we want the background clear (no blur) - show full image
-   Use class .home-page on the wrapper to disable blur and scale slightly */
-.home-page::before {
-  filter: none;
-  transform: none;
-}
-
-/* the content area — everything visible goes here */
-.page-content {
-  position: relative;
-  z-index: 2;
-  padding: 28px;
-}
-
-/* -------------------------------------------
-  HEADER
----------------------------------------------*/
+/* =====================================================
+   HEADER
+===================================================== */
 .header {
-  height: var(--header-h);
   width: 100%;
-  position: fixed;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+  position: sticky;
   top: 0;
-  left: 0;
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  background: rgba(0,0,0,0.45);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  padding: 8px 24px;
+  z-index: 50;
 }
 
-.header .brand {
-  font-size: 22px;
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 32px;
+}
+
+.brand {
+  font-size: 28px;
   font-weight: 700;
-  color: #ffe8a8;
-  margin-right: 26px;
+  color: #ffe9a8;
+  text-shadow: 0 0 10px rgba(255, 230, 160, 0.7);
 }
 
-.header .nav {
+.nav {
   display: flex;
-  gap: 18px;
-  align-items: center;
-  margin-left: 20px;
-  flex: 1;
+  gap: 20px;
 }
 
-.header .nav a {
-  color: rgba(255,255,255,0.92);
+.nav a {
   text-decoration: none;
-  font-weight: 600;
+  color: #ffffffcc;
+  font-size: 15px;
+  transition: 0.25s ease;
 }
 
-.header .actions {
-  display: flex;
-  gap: 10px;
+.nav a:hover {
+  color: #fff;
+  transform: translateY(-2px);
 }
 
-/* small nav buttons */
+/* NAV BUTTONS (Login/Signup/Profile/Logout) */
 .btn-nav {
-  padding: 8px 12px;
-  border-radius: 10px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.16);
   border: none;
-  background: rgba(255,255,255,0.08);
-  color: #fff;
   cursor: pointer;
+  color: white;
+  backdrop-filter: blur(8px);
+  transition: 0.25s ease;
 }
 
-/* -------------------------------------------
-   GLASS CARDS / UI
----------------------------------------------*/
-.card, .glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(10px);
-  border-radius: 14px;
-  padding: 18px;
+.btn-nav:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+/* =====================================================
+   CARDS (Glassmorphism)
+===================================================== */
+.card,
+.glass-card {
+  background: rgba(255, 255, 255, 0.13);
+  backdrop-filter: blur(14px);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
   color: #fff;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.45);
-  margin-bottom: 22px;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
 }
 
-/* hero area */
-.hero {
-  padding: 36px;
-  border-radius: 12px;
-  color: #fff;
-}
-
-/* text styles */
-h1, h2, h3 { color: #fff; }
-h1 { font-size: 48px; margin-bottom: 12px; font-weight: 800; color: #ffe8a8; }
-p { color: rgba(255,255,255,0.92); line-height: 1.65; }
-
-/* -------------------------------------------
-  Properties grid
----------------------------------------------*/
+/* =====================================================
+   PROPERTY GRID
+===================================================== */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px,1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 22px;
 }
 
 .property-card img {
   width: 100%;
   height: 220px;
-  object-fit: cover;         /* important: cover keeps aspect and fills box */
-  display: block;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
+  object-fit: cover;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
 }
 
-/* meta area */
-.meta {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-top: 10px;
-  font-size: 14px;
+/* SOLD BADGE */
+.badge-sold {
+  background: #ff4757;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: bold;
 }
 
-/* favorites */
+/* =====================================================
+   FAVORITE HEART
+===================================================== */
 .fav {
   cursor: pointer;
-  font-size: 22px;
+  font-size: 24px;
+  transition: 0.25s ease;
 }
-.fav.active { color: #ff3777; text-shadow: 0 0 8px #ff3777; }
 
-/* property detail big image */
-.detail-image {
+.fav:hover {
+  transform: scale(1.28);
+}
+
+.fav.active {
+  color: #ff2f75;
+  text-shadow: 0 0 10px #ff2f75;
+}
+
+/* =====================================================
+   INPUTS & BUTTONS
+===================================================== */
+input,
+select,
+textarea {
   width: 100%;
-  height: 60vh;             /* big view */
-  object-fit: cover;        /* crucial to show full coverage */
-  border-radius: 12px;
-  display: block;
+  padding: 12px 14px;
+  border: none;
+  outline: none;
+  margin-top: 10px;
+  background: rgba(255, 255, 255, 0.20);
+  border-radius: 10px;
+  color: #fff;
+  backdrop-filter: blur(10px);
 }
 
-/* seller info */
-.seller-info {
-  margin-top: 12px;
-  font-size: 14px;
-  color: rgba(255,255,255,0.95);
+input::placeholder {
+  color: #eee;
 }
 
-/* small helper */
-.small { font-size: 13px; color: rgba(255,255,255,0.8); }
-
-/* responsive */
-@media (max-width: 900px) {
-  h1 { font-size: 34px; }
-  .detail-image { height: 40vh; }
+/* BUTTON */
+button {
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #7a5cff, #5f3bff);
+  border: none;
+  color: white;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.25s ease;
+  box-shadow: 0 0 12px rgba(100, 50, 255, 0.45);
 }
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 18px rgba(100, 50, 255, 0.8);
+}
+
+/* =====================================================
+   FAVORITES PAGE
+===================================================== */
+.favorites-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 22px;
+}
+
+.fav-card {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+
+.fav-card img {
+  width: 140px;
+  height: 140px;
+  border-radius: 14px;
+  object-fit: cover;
+}
+
+/* =====================================================
+   DETAIL PAGE IMAGE FIX (FULL IMAGE)
+===================================================== */
+.detail-image-full {
+  width: 100%;
+  height: 380px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.detail-image-full img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* =====================================================
+   PROFILE PAGE
+===================================================== */
+.profile-box {
+  max-width: 550px;
+  margin: auto;
+  padding: 25px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(14px);
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+@media (max-width: 768px) {
+  .header-container {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .nav {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .favorites-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
