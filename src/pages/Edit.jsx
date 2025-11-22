@@ -2,148 +2,115 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
-import { useAuth } from "../auth.jsx";
 import bg from "../assets/web_bg2.png";
 
 export default function Edit() {
-  const { user, userDoc } = useAuth();
   const { id } = useParams();
   const nav = useNavigate();
 
-  const [form, setForm] = useState({
-    title: "",
-    price: "",
-    address: "",
-    description: "",
-    img: ""
-  });
+  const [data, setData] = useState(null);
 
-  // Fetch property details
+  // Fetch existing property data
   useEffect(() => {
-    const fetchData = async () => {
+    const load = async () => {
       const snap = await getDoc(doc(db, "properties", id));
-      if (snap.exists()) {
-        const data = snap.data();
-        setForm({
-          title: data.title,
-          price: data.price,
-          address: data.address,
-          description: data.description,
-          img: data.img || ""
-        });
-      }
+      if (snap.exists()) setData({ id: snap.id, ...snap.data() });
     };
-    fetchData();
+    load();
   }, [id]);
 
-  // Update form fields
-  const update = (key, value) => {
-    setForm({ ...form, [key]: value });
-  };
-
-  // Save edited changes
-  const save = async () => {
+  const updateNow = async () => {
     await updateDoc(doc(db, "properties", id), {
-      ...form,
-      updatedAt: new Date().toISOString(),
+      title: data.title,
+      price: data.price,
+      address: data.address,
+      description: data.description,
+      img: data.img,
+      status: data.status, // sold OR unsold
     });
 
-    alert("Property updated successfully.");
-    nav("/dashboard");
+    alert("Property Updated");
+    nav(`/properties/${id}`);
   };
 
-  if (!user || userDoc?.role !== "dealer") {
+  if (!data)
     return (
       <div className="page-wrapper">
-        <h2>You are not authorized to edit properties.</h2>
+        <h2>Loading...</h2>
       </div>
     );
-  }
 
   return (
     <div
       className="page-wrapper"
-      style={{
-        backgroundImage: `url(${bg})`,
-      }}
+      style={{ backgroundImage: `url(${bg})` }}
     >
-      <h2>Edit Property</h2>
+      <div className="glass-card">
+        <h2>Edit Property</h2>
 
-      <div
-        className="glass-card"
-        style={{
-          maxWidth: "750px",
-          margin: "auto",
-          marginTop: 25,
-        }}
-      >
         {/* TITLE */}
-        <label>Property Title</label>
+        <label className="small">Title</label>
         <input
-          type="text"
-          value={form.title}
-          onChange={(e) => update("title", e.target.value)}
-          placeholder="Updated title"
+          value={data.title}
+          onChange={(e) => setData({ ...data, title: e.target.value })}
         />
 
         {/* PRICE */}
-        <label style={{ marginTop: 12 }}>Price</label>
+        <label className="small">Price</label>
         <input
-          type="number"
-          value={form.price}
-          onChange={(e) => update("price", e.target.value)}
-          placeholder="Updated price"
+          value={data.price}
+          onChange={(e) => setData({ ...data, price: e.target.value })}
         />
 
         {/* ADDRESS */}
-        <label style={{ marginTop: 12 }}>Address</label>
+        <label className="small">Address</label>
         <input
-          type="text"
-          value={form.address}
-          onChange={(e) => update("address", e.target.value)}
-          placeholder="Updated address"
+          value={data.address}
+          onChange={(e) => setData({ ...data, address: e.target.value })}
         />
 
         {/* IMAGE URL */}
-        <label style={{ marginTop: 12 }}>Image URL</label>
+        <label className="small">Image URL</label>
         <input
-          type="text"
-          value={form.img}
-          onChange={(e) => update("img", e.target.value)}
-          placeholder="https://example.com/new-image.jpg"
+          value={data.img}
+          onChange={(e) => setData({ ...data, img: e.target.value })}
         />
 
         {/* DESCRIPTION */}
-        <label style={{ marginTop: 12 }}>Description</label>
+        <label className="small">Description</label>
         <textarea
-          value={form.description}
-          onChange={(e) => update("description", e.target.value)}
           style={{
             width: "100%",
             minHeight: "120px",
-            padding: 14,
-            borderRadius: 10,
-            border: "none",
-            marginTop: 8,
-            background: "rgba(255, 255, 255, 0.22)",
-            backdropFilter: "blur(10px)",
+            padding: "12px",
+            borderRadius: "10px",
+            background: "rgba(255,255,255,0.22)",
             color: "white",
-            resize: "none",
+            border: "none",
             outline: "none",
           }}
-        />
+          value={data.description}
+          onChange={(e) =>
+            setData({ ...data, description: e.target.value })
+          }
+        ></textarea>
 
-        {/* SAVE BUTTON */}
-        <button onClick={save} style={{ marginTop: 18, width: "100%" }}>
-          Save Changes
-        </button>
-
-        {/* BACK BUTTON */}
-        <button
-          onClick={() => nav("/dashboard")}
-          style={{ marginTop: 12, width: "100%", background: "#333" }}
+        {/* STATUS (Sold / Unsold) */}
+        <label className="small">Status</label>
+        <select
+          value={data.status}
+          onChange={(e) => setData({ ...data, status: e.target.value })}
         >
-          ← Back to Dashboard
+          <option value="unsold">Unsold</option>
+          <option value="sold">Sold</option>
+        </select>
+
+        {/* UPDATE BUTTON */}
+        <button
+          style={{ marginTop: 20 }}
+          onClick={updateNow}
+        >
+          Save Changes
         </button>
       </div>
     </div>
