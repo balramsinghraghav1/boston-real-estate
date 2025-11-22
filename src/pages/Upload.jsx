@@ -71,7 +71,7 @@ export default function Upload() {
             <input
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              placeholder="₹150000"
+              placeholder="$150000"
             />
           </div>
 
