@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { useAuth } from "../auth.jsx";
 import { useNavigate, Link } from "react-router-dom";
-import bg from "../assets/web_bg.png";
+import { useAuth } from "../auth.jsx";
+import bg from "../assets/web_bg2.png";
 
 export default function Signup() {
   const { signup } = useAuth();
@@ -9,21 +9,32 @@ export default function Signup() {
 
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
+  const [role, setRole] = useState("buyer"); // default buyer
+  const [loading, setLoading] = useState(false);
 
-  const submit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     if (!email || !pass) {
-      alert("Please fill all fields.");
+      alert("Please enter email and password.");
+      return;
+    }
+    if (!["buyer", "dealer"].includes(role)) {
+      alert("Please select a valid role.");
       return;
     }
 
     try {
-      // default role = buyer
-      await signup(email, pass, "buyer");
+      setLoading(true);
+      // signup(email, password, role) — auth.jsx creates the userDoc with role
+      await signup(email.trim(), pass, role);
       alert("Account created successfully.");
       nav("/profile");
     } catch (err) {
-      console.error(err);
-      alert("Signup failed. Try again.");
+      console.error("Signup error:", err);
+      const msg = (err && err.message) || "Signup failed. Try again.";
+      alert(msg);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -32,50 +43,69 @@ export default function Signup() {
       className="page-wrapper"
       style={{
         backgroundImage: `url(${bg})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
       }}
     >
-      <h2>Create Account</h2>
+      <h2 style={{ color: "white", textAlign: "left", marginLeft: 12 }}>
+        Create account
+      </h2>
 
       <div
         className="glass-card"
         style={{
-          maxWidth: "450px",
-          margin: "40px auto",
-          padding: "30px",
+          maxWidth: 520,
+          margin: "20px auto",
+          padding: 26,
         }}
       >
-        {/* EMAIL */}
-        <label>Email</label>
-        <input
-          type="email"
-          placeholder="example@gmail.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        <form onSubmit={handleSubmit}>
+          <label style={{ fontWeight: 600 }}>Email</label>
+          <input
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
 
-        {/* PASSWORD */}
-        <label style={{ marginTop: 15 }}>Password</label>
-        <input
-          type="password"
-          placeholder="Your password"
-          value={pass}
-          onChange={(e) => setPass(e.target.value)}
-        />
+          <label style={{ marginTop: 12, fontWeight: 600 }}>Password</label>
+          <input
+            type="password"
+            placeholder="Minimum 6 characters"
+            value={pass}
+            onChange={(e) => setPass(e.target.value)}
+            minLength={6}
+            required
+          />
 
-        {/* SIGNUP BUTTON */}
-        <button
-          onClick={submit}
-          style={{ marginTop: 20, width: "100%" }}
-        >
-          Sign Up
-        </button>
+          <label style={{ marginTop: 12, fontWeight: 600 }}>
+            Role (choose one)
+          </label>
+          <select value={role} onChange={(e) => setRole(e.target.value)}>
+            <option value="buyer">Buyer</option>
+            <option value="dealer">Dealer</option>
+          </select>
 
-        <div style={{ marginTop: 12, textAlign: "center" }}>
-          <span className="small">Already have an account?</span>{" "}
-          <Link to="/login" style={{ color: "#ffd369" }}>
-            Login
-          </Link>
-        </div>
+          <button
+            type="submit"
+            style={{ marginTop: 18, width: "100%" }}
+            disabled={loading}
+          >
+            {loading ? "Creating account..." : "Create account"}
+          </button>
+
+          <div style={{ marginTop: 12, textAlign: "center" }}>
+            <small style={{ color: "#ddd" }}>
+              By creating an account you agree to the terms. Already have an
+              account?{" "}
+              <Link to="/login" style={{ color: "#ffd369", textDecoration: "none" }}>
+                Login
+              </Link>
+            </small>
+          </div>
+        </form>
       </div>
     </div>
   );
