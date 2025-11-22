@@ -1,5 +1,82 @@
+import React, { useState } from "react";
+import { useAuth } from "../auth.jsx";
+import { useNavigate, Link } from "react-router-dom";
+import bg from "../assets/web_bg.png";
 
-import React,{useState} from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../auth.jsx';
-export default function Signup(){ const [email,setEmail]=useState(''); const [pw,setPw]=useState(''); const [role,setRole]=useState('buyer'); const { signup } = useAuth(); const nav = useNavigate(); const go=async(e)=>{ e.preventDefault(); try{ await signup(email,pw,role); nav('/'); }catch(_){ alert('Signup failed'); } }; return (<div className="card" style={{maxWidth:420}}><h2>Signup</h2><form onSubmit={go}><div className="form-row"><label>Email</label><input value={email} onChange={e=>setEmail(e.target.value)}/></div><div className="form-row"><label>Password</label><input type="password" value={pw} onChange={e=>setPw(e.target.value)}/></div><div className="form-row"><label>Role</label><select value={role} onChange={e=>setRole(e.target.value)}><option value="buyer">buyer</option><option value="dealer">dealer</option></select></div><button>Signup</button></form></div>); }
+export default function Signup() {
+  const { signup } = useAuth();
+  const nav = useNavigate();
+
+  const [email, setEmail] = useState("");
+  const [pass, setPass] = useState("");
+
+  const submit = async () => {
+    if (!email || !pass) {
+      alert("Please fill all fields.");
+      return;
+    }
+
+    try {
+      // default role = buyer
+      await signup(email, pass, "buyer");
+      alert("Account created successfully.");
+      nav("/profile");
+    } catch (err) {
+      console.error(err);
+      alert("Signup failed. Try again.");
+    }
+  };
+
+  return (
+    <div
+      className="page-wrapper"
+      style={{
+        backgroundImage: `url(${bg})`,
+      }}
+    >
+      <h2>Create Account</h2>
+
+      <div
+        className="glass-card"
+        style={{
+          maxWidth: "450px",
+          margin: "40px auto",
+          padding: "30px",
+        }}
+      >
+        {/* EMAIL */}
+        <label>Email</label>
+        <input
+          type="email"
+          placeholder="example@gmail.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+
+        {/* PASSWORD */}
+        <label style={{ marginTop: 15 }}>Password</label>
+        <input
+          type="password"
+          placeholder="Your password"
+          value={pass}
+          onChange={(e) => setPass(e.target.value)}
+        />
+
+        {/* SIGNUP BUTTON */}
+        <button
+          onClick={submit}
+          style={{ marginTop: 20, width: "100%" }}
+        >
+          Sign Up
+        </button>
+
+        <div style={{ marginTop: 12, textAlign: "center" }}>
+          <span className="small">Already have an account?</span>{" "}
+          <Link to="/login" style={{ color: "#ffd369" }}>
+            Login
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
