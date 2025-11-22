@@ -9,7 +9,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase";
 import { useAuth } from "../auth.jsx";
-import bg from "../assets/web_bg.png";
+import bg from "../assets/web_bg2.png";
 
 export default function Detail() {
   const { id } = useParams();
