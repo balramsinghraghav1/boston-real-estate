@@ -137,7 +137,7 @@ export default function Properties() {
                 <h3 style={{ margin: 0, fontSize: 20 }}>{p.title}</h3>
 
           <div style={{ marginTop: 6 }}>
-              <strong style={{ display: "block" }}>₹ {p.price}</strong>
+              <strong style={{ display: "block" }}>$ {p.price}</strong>
                   <span className="small" style={{ display: "block", marginTop: 6 }}>
             {p.address}
                   </span>
