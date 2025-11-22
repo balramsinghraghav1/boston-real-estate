@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../auth.jsx";
-import { useNavigate, Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import bg from "../assets/web_bg.png";
 
 export default function Login() {
@@ -8,18 +8,19 @@ export default function Login() {
   const nav = useNavigate();
 
   const [email, setEmail] = useState("");
-  const [pass, setPass] = useState("");
+  const [pw, setPw] = useState("");
+  const [err, setErr] = useState("");
 
-  const submit = async () => {
-    if (!email || !pass) return alert("Please enter email and password.");
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setErr("");
 
     try {
-      await login(email, pass);
-      alert("Login successful.");
-      nav("/profile");
-    } catch (err) {
-      alert("Invalid credentials.");
-      console.log(err);
+      await login(email, pw);
+      nav("/");
+    } catch (error) {
+      console.error(error);
+      setErr("Invalid email or password");
     }
   };
 
@@ -28,50 +29,54 @@ export default function Login() {
       className="page-wrapper"
       style={{
         backgroundImage: `url(${bg})`,
+        backdropFilter: "blur(12px)",
       }}
     >
-      <h2>Login</h2>
+      <div className="glass-card" style={{ maxWidth: 450, margin: "auto", marginTop: 60 }}>
+        <h2 style={{ marginBottom: 10 }}>Login</h2>
 
-      <div
-        className="glass-card"
-        style={{
-          maxWidth: "450px",
-          margin: "40px auto",
-          padding: "30px",
-        }}
-      >
-        {/* EMAIL */}
-        <label>Email</label>
-        <input
-          type="email"
-          placeholder="example@gmail.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        {err && (
+          <div
+            style={{
+              background: "rgba(255, 80, 80, 0.2)",
+              padding: 10,
+              borderRadius: 8,
+              marginBottom: 10,
+              color: "#ffb2b2",
+            }}
+          >
+            {err}
+          </div>
+        )}
 
-        {/* PASSWORD */}
-        <label style={{ marginTop: 15 }}>Password</label>
-        <input
-          type="password"
-          placeholder="Your password"
-          value={pass}
-          onChange={(e) => setPass(e.target.value)}
-        />
+        <form onSubmit={handleLogin}>
+          <label>Email</label>
+          <input
+            type="email"
+            placeholder="Enter email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-        {/* SUBMIT BUTTON */}
-        <button
-          onClick={submit}
-          style={{ marginTop: 20, width: "100%" }}
-        >
-          Login
-        </button>
+          <label style={{ marginTop: 14 }}>Password</label>
+          <input
+            type="password"
+            placeholder="Enter password"
+            value={pw}
+            onChange={(e) => setPw(e.target.value)}
+          />
 
-        <div style={{ marginTop: 12, textAlign: "center" }}>
-          <span className="small">Don't have an account?</span>{" "}
-          <Link to="/signup" style={{ color: "#ffd369" }}>
+          <button type="submit" style={{ marginTop: 20, width: "100%" }}>
+            Login
+          </button>
+        </form>
+
+        <p style={{ marginTop: 14, fontSize: 14 }}>
+          Don't have an account?{" "}
+          <Link to="/signup" style={{ color: "#ffd68a" }}>
             Signup
           </Link>
-        </div>
+        </p>
       </div>
     </div>
   );
