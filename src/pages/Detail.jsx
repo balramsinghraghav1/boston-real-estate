@@ -1,27 +1,29 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore";
+import { useParams } from "react-router-dom";
+import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
+import { useAuth } from "../auth.jsx";
 import bg from "../assets/web_bg2.png";
 
 export default function Detail() {
   const { id } = useParams();
-  const [data, setData] = useState(null);
+  const { user } = useAuth();
 
+  const [p, setP] = useState(null);
+
+  // Fetch Property Live
   useEffect(() => {
-    const load = async () => {
-      const snap = await getDoc(doc(db, "properties", id));
-      if (snap.exists()) {
-        setData({ id: snap.id, ...snap.data() });
-      }
-    };
-    load();
+    const ref = doc(db, "properties", id);
+    const unsub = onSnapshot(ref, (d) =>
+      setP(d.exists() ? { id: d.id, ...d.data() } : null)
+    );
+    return () => unsub();
   }, [id]);
 
-  if (!data)
+  if (!p)
     return (
       <div className="page-wrapper">
-        <h2>Loading...</h2>
+        <div className="glass-card">Loading...</div>
       </div>
     );
 
@@ -30,62 +32,61 @@ export default function Detail() {
       className="page-wrapper"
       style={{
         backgroundImage: `url(${bg})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
       }}
     >
-
-      {/* FULL IMAGE – NO CROPPING */}
-      <div
-        style={{
-          width: "100%",
-          borderRadius: "16px",
-          overflow: "hidden",
-          background: "rgba(255,255,255,0.05)",
-          backdropFilter: "blur(8px)",
-        }}
-      >
+      <div className="glass-card" style={{ padding: 20 }}>
+        {/* IMAGE */}
         <img
           src={
-            data.img ||
+            p.img ||
             "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200&q=80"
           }
-          alt="property"
           style={{
             width: "100%",
-            height: "400px",
-            objectFit: "contain", // ⬅ shows full image without cropping
-            background: "#111",
+            height: "380px",
+            borderRadius: "12px",
+            objectFit: "cover", // FULL IMAGE — NO CROP
           }}
+          alt=""
         />
-      </div>
 
-      {/* DETAILS */}
-      <div className="glass-card" style={{ marginTop: 30 }}>
-        <h2 style={{ marginBottom: 10 }}>{data.title}</h2>
+        <h2 style={{ marginTop: 16 }}>{p.title}</h2>
 
-        <p style={{ fontSize: 20, fontWeight: "bold", marginBottom: 15 }}>
-          ₹ {data.price}
+        <p style={{ fontSize: 20, fontWeight: 700 }}>₹ {p.price}</p>
+
+        <p className="small" style={{ marginTop: 6 }}>
+          <strong>Address:</strong> {p.address}
         </p>
 
-        <p>
-          <strong>Address:</strong> {data.address}
+        <p className="small" style={{ marginTop: 12 }}>
+          <strong>Dealer:</strong> {p.ownerEmail || "NA"}
         </p>
 
-        <p style={{ marginTop: 10 }}>
-          <strong>Dealer:</strong> {data.dealerEmail || "N/A"}
-        </p>
-
-        <p style={{ marginTop: 15 }}>
+        <p style={{ marginTop: 12 }}>
           <strong>Description:</strong>
           <br />
-          {data.description || "No description available"}
+          {p.description || "No description added"}
         </p>
-      </div>
 
-      <Link to="/properties">
-        <button style={{ marginTop: 20, background: "#333" }}>
-          ← Back to Properties
-        </button>
-      </Link>
+        {p.status === "sold" && (
+          <div
+            style={{
+              marginTop: 12,
+              background: "#ff4f4f",
+              display: "inline-block",
+              padding: "6px 14px",
+              borderRadius: "8px",
+              fontWeight: 700,
+            }}
+          >
+            SOLD
+          </div>
+        )}
+      </div>
     </div>
   );
 }
+
