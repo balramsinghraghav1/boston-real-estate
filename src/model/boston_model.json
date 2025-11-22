@@ -1,5 +1,0 @@
-{
-  "model": "linear_regression",
-  "features": 13,
-  "description": "This placeholder file exists only for structure. Model logic is written in JavaScript manually."
-}
