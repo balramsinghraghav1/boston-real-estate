@@ -92,7 +92,7 @@ export default function Calculator() {
         {pred !== null && (
           <div className="glass-card" style={{ marginTop: 18, textAlign: "center" }}>
             <div style={{ fontSize: 20, fontWeight: 700 }}>
-              Estimated Price: <span style={{ color: "#ffd369" }}>{pred} × $1000</span>
+              Estimated Price: <span style={{ color: "#ffd369" }}>{pred} × $1000/-</span>
             </div>
             <div style={{ fontSize: 13, marginTop: 6, color: "#ddd" }}>
               Model: ONNX Runtime Web (High Accuracy)
