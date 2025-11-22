@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import bg from "../assets/web_bg.png";
+import bg from "../assets/web_bg2.png";
 
 // Coefficients and intercept extracted from your LinearRegression model
 const COEFS = [
