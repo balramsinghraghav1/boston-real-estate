@@ -1,22 +1,70 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
-export default function Home(){
+import React from "react";
+import { Link } from "react-router-dom";
+import bg from "../assets/web_bg.png";
+
+export default function Home() {
   return (
-    <div>
-      <section className="hero">
-        <div className="overlay">
-          <h1 style={{fontSize:48,margin:0}}>Boston Real Estate</h1>
-          <p style={{fontSize:18,marginTop:8}}>Your Exclusive Gateway to Premier Properties</p>
-          <div style={{marginTop:12}}>
-            <Link to="/properties" className="btn">Explore Properties</Link>
-            <Link to="/calculator" className="btn" style={{marginLeft:12, background:'#333'}}>Calculator</Link>
+    <div className="page-wrapper home-page" style={{
+      backgroundImage: `url(${bg})`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+      backdropFilter: "blur(0px)"
+    }}>
+      
+      {/* HERO SECTION */}
+      <section
+        style={{
+          height: "420px",
+          display: "flex",
+          alignItems: "flex-end",
+          padding: "40px",
+          color: "white"
+        }}
+      >
+        <div
+          style={{
+            width: "100%",
+            background: "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.60) 100%)",
+            padding: "40px",
+            borderRadius: "12px"
+          }}
+        >
+          <h1 style={{ fontSize: 48, fontWeight: 700, marginBottom: 12 }}>
+            Boston Real Estate
+          </h1>
+
+          <p style={{ fontSize: 18, opacity: 0.9, maxWidth: "600px" }}>
+            The modern real estate platform for Buyers and Dealers. 
+            Explore premium properties, save your favorites, and get AI-powered price predictions.
+          </p>
+
+          <div style={{ marginTop: 20 }}>
+            <Link to="/properties">
+              <button style={{ marginRight: 12 }}>Explore Properties</button>
+            </Link>
+
+            <Link to="/calculator">
+              <button style={{ background: "#333" }}>Price Calculator</button>
+            </Link>
           </div>
         </div>
       </section>
-      <div className="content-card">
-        <h2>About the platform</h2>
-        <p>Boston Real Estate connects buyers and dealers with real-time property listings and an AI price estimation tool.</p>
+
+      {/* FEATURES SECTION */}
+      <div className="card glass-card" style={{ marginTop: 40 }}>
+        <h2 style={{ marginBottom: 12 }}>Website Features</h2>
+
+        <ul style={{ lineHeight: "1.7", fontSize: 15 }}>
+          <li>✨ Real-time property listings with modern UI</li>
+          <li>❤️ Save & manage your favorite properties</li>
+          <li>🏠 Detailed property pages with crisp display</li>
+          <li>📈 AI-Based price prediction calculator (13 parameters)</li>
+          <li>🧑‍💼 Dealer dashboard to manage your listings</li>
+          <li>🔐 Secure Firebase Authentication</li>
+          <li>⚡ Ultra-fast React + Vite performance</li>
+        </ul>
       </div>
     </div>
-  )
+  );
 }
