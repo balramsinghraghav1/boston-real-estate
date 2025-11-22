@@ -3,9 +3,9 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   doc,
   getDoc,
-  setDoc,
   deleteDoc,
   updateDoc,
+  setDoc,
 } from "firebase/firestore";
 import { db } from "../firebase";
 import { useAuth } from "../auth.jsx";
@@ -17,6 +17,7 @@ export default function Detail() {
   const { user, userDoc } = useAuth();
 
   const [data, setData] = useState(null);
+  const [dealerEmail, setDealerEmail] = useState("");
   const [fav, setFav] = useState(false);
 
   // Fetch property data
@@ -24,7 +25,16 @@ export default function Detail() {
     const fetchData = async () => {
       const snap = await getDoc(doc(db, "properties", id));
       if (snap.exists()) {
-        setData({ id: snap.id, ...snap.data() });
+        const d = { id: snap.id, ...snap.data() };
+        setData(d);
+
+        // Fetch dealer email
+        if (d.owner) {
+          const userSnap = await getDoc(doc(db, "users", d.owner));
+          if (userSnap.exists()) {
+            setDealerEmail(userSnap.data().email || "");
+          }
+        }
       }
     };
     fetchData();
@@ -38,7 +48,7 @@ export default function Detail() {
   }, [user, id]);
 
   const toggleFavorite = async () => {
-    if (!user) return alert("Please login to favorite properties.");
+    if (!user) return alert("Please login to save favorites.");
 
     const ref = doc(db, "users", user.uid, "favorites", id);
     if (fav) {
@@ -48,11 +58,6 @@ export default function Detail() {
       await setDoc(ref, { addedAt: new Date().toISOString() });
       setFav(true);
     }
-  };
-
-  const markAsSold = async () => {
-    await updateDoc(doc(db, "properties", id), { status: "sold" });
-    setData({ ...data, status: "sold" });
   };
 
   const deleteProperty = async () => {
@@ -78,10 +83,11 @@ export default function Detail() {
       <div
         style={{
           width: "100%",
-          height: "360px",
+          height: "380px",
           backgroundImage: `url(${data.img ||
-            "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200&q=80"})`,
-          backgroundSize: "cover",
+            "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200"})`,
+          backgroundSize: "contain", // <-- FIXED full image visible
+          backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
           borderRadius: "14px",
         }}
@@ -105,24 +111,39 @@ export default function Detail() {
         )}
       </div>
 
-      {/* DETAILS CARD */}
+      {/* DETAILS */}
       <div className="glass-card" style={{ marginTop: 30 }}>
-        <h2 style={{ marginBottom: 8 }}>{data.title}</h2>
+        <h2>{data.title}</h2>
 
-        <p style={{ fontSize: 17, opacity: 0.9 }}>
+        <p style={{ fontSize: 18, marginTop: 10 }}>
           <strong>₹ {data.price}</strong>
         </p>
 
-        <p style={{ marginTop: 8, opacity: 0.9 }}>{data.address}</p>
+        <p style={{ marginTop: 8 }}>
+          <strong>Address:</strong> {data.address}
+        </p>
 
-        <p style={{ marginTop: 18 }}>{data.description}</p>
+        {/* Dealer email */}
+        {dealerEmail && (
+          <p style={{ marginTop: 8 }}>
+            <strong>Dealer:</strong> {dealerEmail}
+          </p>
+        )}
 
-        {/* FAVORITES BUTTON (BUYER ONLY) */}
+        {/* Description */}
+        {data.description && (
+          <p style={{ marginTop: 15, opacity: 0.9 }}>
+            <strong>Description:</strong> <br />
+            {data.description}
+          </p>
+        )}
+
+        {/* BUYER FAVORITES */}
         {userDoc?.role === "buyer" && (
           <button
             onClick={toggleFavorite}
             style={{
-              marginTop: 16,
+              marginTop: 18,
               background: fav ? "#ff2c74" : "#7a5cff",
             }}
           >
@@ -130,19 +151,12 @@ export default function Detail() {
           </button>
         )}
 
-        {/* DEALER ACTIONS */}
-        {userDoc?.role === "dealer" && (
-          <div style={{ marginTop: 22, display: "flex", gap: "12px" }}>
+        {/* DEALER ONLY ACTIONS */}
+        {userDoc?.role === "dealer" && user.uid === data.owner && (
+          <div style={{ marginTop: 25, display: "flex", gap: "12px" }}>
             <Link to={`/edit/${id}`}>
-              <button style={{ background: "#5c6aff" }}>Edit Property</button>
+              <button style={{ background: "#5c6aff" }}>Edit</button>
             </Link>
-
-            <button
-              onClick={markAsSold}
-              style={{ background: "#27ae60" }}
-            >
-              Mark as Sold
-            </button>
 
             <button
               onClick={deleteProperty}
@@ -154,7 +168,6 @@ export default function Detail() {
         )}
       </div>
 
-      {/* BACK TO LIST */}
       <Link to="/properties">
         <button style={{ marginTop: 20, background: "#333" }}>
           ← Back to Properties
