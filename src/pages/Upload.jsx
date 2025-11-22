@@ -3,7 +3,7 @@ import { useAuth } from "../auth.jsx";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { useNavigate } from "react-router-dom";
-import bg from "../assets/web_bg.png";
+import bg from "../assets/web_bg2.png";
 
 export default function Upload() {
   const { user, userDoc } = useAuth();
