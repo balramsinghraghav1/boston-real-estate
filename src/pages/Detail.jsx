@@ -8,10 +8,8 @@ import bg from "../assets/web_bg2.png";
 export default function Detail() {
   const { id } = useParams();
   const { user } = useAuth();
-
   const [p, setP] = useState(null);
 
-  // Fetch Property Live
   useEffect(() => {
     const ref = doc(db, "properties", id);
     const unsub = onSnapshot(ref, (d) =>
@@ -20,12 +18,7 @@ export default function Detail() {
     return () => unsub();
   }, [id]);
 
-  if (!p)
-    return (
-      <div className="page-wrapper">
-        <div className="glass-card">Loading...</div>
-      </div>
-    );
+  if (!p) return <div className="card">Loading...</div>;
 
   return (
     <div
@@ -34,59 +27,79 @@ export default function Detail() {
         backgroundImage: `url(${bg})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
+        backdropFilter: "blur(12px)",
+        paddingBottom: "50px",
       }}
     >
-      <div className="glass-card" style={{ padding: 20 }}>
-        {/* IMAGE */}
-        <img
-          src={
-            p.img ||
-            "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200&q=80"
-          }
+      <div className="card detail-grid" style={{ marginTop: 20 }}>
+
+        {/* FIXED IMAGE BOX WITH BLUR BACKGROUND */}
+        <div
           style={{
             width: "100%",
             height: "380px",
-            borderRadius: "12px",
-            objectFit: "cover", // FULL IMAGE — NO CROP
+            position: "relative",
+            borderRadius: 12,
+            overflow: "hidden",
           }}
-          alt=""
-        />
+        >
+          {/* Blurred Background */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              backgroundImage: `url(${p.img})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              filter: "blur(20px)",
+              transform: "scale(1.2)",
+            }}
+          ></div>
 
-        <h2 style={{ marginTop: 16 }}>{p.title}</h2>
+          {/* Actual Property Image (FULLY SHOWN) */}
+          <img
+            src={p.img}
+            alt="property"
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "contain", // FULL IMAGE VISIBLE
+              zIndex: 2,
+            }}
+          />
+        </div>
 
-        <p style={{ fontSize: 20, fontWeight: 700 }}>₹ {p.price}</p>
+        {/* PROPERTY DETAILS */}
+        <h2 style={{ marginTop: 20 }}>{p.title}</h2>
 
-        <p className="small" style={{ marginTop: 6 }}>
+        <p style={{ fontSize: 18 }}>
+          <strong>₹ {p.price}</strong>
+        </p>
+
+        <p className="small" style={{ marginTop: 4 }}>
           <strong>Address:</strong> {p.address}
         </p>
 
-        <p className="small" style={{ marginTop: 12 }}>
-          <strong>Dealer:</strong> {p.ownerEmail || "NA"}
+        <p className="small" style={{ marginTop: 8 }}>
+          <strong>Dealer:</strong> {p.ownerEmail}
         </p>
 
-        <p style={{ marginTop: 12 }}>
+        <p style={{ marginTop: 20 }}>
           <strong>Description:</strong>
           <br />
-          {p.description || "No description added"}
+          {p.description}
         </p>
 
         {p.status === "sold" && (
-          <div
-            style={{
-              marginTop: 12,
-              background: "#ff4f4f",
-              display: "inline-block",
-              padding: "6px 14px",
-              borderRadius: "8px",
-              fontWeight: 700,
-            }}
-          >
-            SOLD
+          <div style={{ marginTop: 12 }}>
+            <span className="badge-sold">SOLD</span>
           </div>
         )}
       </div>
     </div>
   );
 }
+
 
