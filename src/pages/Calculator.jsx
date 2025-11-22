@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import bg from "../assets/web_bg.png";
+import bg from "../assets/web_bg2.png";
 
 export default function Calculator() {
   // 13 Boston dataset features with clear/explained labels
