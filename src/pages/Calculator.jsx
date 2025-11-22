@@ -1,101 +1,122 @@
-import React, { useState, useEffect } from "react";
-import bg from "../assets/web_bg2.png";
-import * as ort from "onnxruntime-web";
+import React, { useState } from "react";
+import bg from "../assets/web_bg.png";
 
-/*
- Order of features:
- ["CRIM","ZN","INDUS","CHAS","NOX","RM","AGE","DIS","RAD","TAX","PTRATIO","B","LSTAT"]
-*/
+// Coefficients and intercept extracted from your LinearRegression model
+const COEFS = [
+  -0.113055924,
+   0.0301104641,
+   0.0403807204,
+   2.78443820,
+  -17.2026334,
+   4.43883520,
+  -0.00629636221,
+  -1.44786537,
+   0.262429736,
+  -0.0106467863,
+  -0.915456240,
+   0.0123513347,
+  -0.508571424
+];
+
+const INTERCEPT = 30.246750993924028;
+
+const FIELDS = [
+  "CRIM", "ZN", "INDUS", "CHAS", "NOX", "RM",
+  "AGE", "DIS", "RAD", "TAX", "PTRATIO", "B", "LSTAT"
+];
 
 export default function Calculator() {
-  const fields = [
-    { key: "crim", label: "CRIM – Per capita crime rate by town" },
-    { key: "zn", label: "ZN – Proportion of residential land zoned for large lots" },
-    { key: "indus", label: "INDUS – Non-retail business acres per town" },
-    { key: "chas", label: "CHAS – Charles River dummy (0 or 1)" },
-    { key: "nox", label: "NOX – Nitric oxides concentration" },
-    { key: "rm", label: "RM – Average number of rooms" },
-    { key: "age", label: "AGE – Age of owner-occupied homes" },
-    { key: "dis", label: "DIS – Distance to employment centers" },
-    { key: "rad", label: "RAD – Radial highway access index" },
-    { key: "tax", label: "TAX – Property tax rate" },
-    { key: "ptratio", label: "PTRATIO – Pupil-teacher ratio" },
-    { key: "b", label: "B – 1000(Bk - 0.63)^2" },
-    { key: "lstat", label: "LSTAT – % lower status population" }
-  ];
 
   const [vals, setVals] = useState(Array(13).fill(""));
-  const [pred, setPred] = useState(null);
-  const [session, setSession] = useState(null);
+  const [result, setResult] = useState(null);
 
-  // 🔥 Load ONNX model once
-  useEffect(() => {
-    async function loadModel() {
-      const loaded = await ort.InferenceSession.create("/src/model/model.onnx");
-      setSession(loaded);
-    }
-    loadModel();
-  }, []);
-
-  const update = (index, v) => {
-    const arr = [...vals];
-    arr[index] = v;
-    setVals(arr);
+  const update = (i, v) => {
+    const copy = [...vals];
+    copy[i] = v;
+    setVals(copy);
   };
 
-  const calculate = async () => {
-    if (!session) {
-      alert("Model not loaded yet...");
-      return;
-    }
+  const calculate = () => {
+    const arr = vals.map(v => parseFloat(v) || 0);
 
-    // Convert inputs → float32
-    const input = Float32Array.from(vals.map((v) => Number(v) || 0));
+    let medv = INTERCEPT;
+    for (let i = 0; i < 13; i++) medv += COEFS[i] * arr[i];
 
-    // Create ONNX tensor
-    const tensor = new ort.Tensor("float32", input, [1, 13]);
-
-    // Run model
-    const output = await session.run({ input: tensor });
-
-    // Your model output name may be "output" or something else
-    const predValue = output.output.data[0];
-
-    setPred(predValue.toFixed(2));
+    // MEDV is in $1000 units → We show simply the predicted MEDV*1000
+    setResult(Math.round(medv * 1000));
   };
 
   return (
-    <div className="page-wrapper" style={{ backgroundImage: `url(${bg})` }}>
-      <h2>Boston Housing Price Calculator (ONNX Model)</h2>
-      <div className="glass-card" style={{ maxWidth: 900, margin: "auto", marginTop: 25 }}>
-        <p>Enter the 13 Boston Housing features (numbers). The ONNX model will estimate the MEDV value.</p>
+    <div
+      className="page-wrapper"
+      style={{
+        backgroundImage: `url(${bg})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        backdropFilter: "blur(12px)",
+        paddingBottom: "50px"
+      }}
+    >
+      <h2 style={{ marginBottom: 14 }}>Boston Housing Calculator</h2>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 20 }}>
-          {fields.map((f, i) => (
-            <div key={i}>
-              <label style={{ fontWeight: 600 }}>{i + 1}. {f.label}</label>
+      <div
+        className="glass-card"
+        style={{
+          maxWidth: 900,
+          margin: "auto",
+          marginTop: 25,
+          padding: 25
+        }}
+      >
+        <p style={{ marginBottom: 18 }}>
+          Enter the 13 Boston Housing dataset features (CRIM → LSTAT).  
+          Output: <b>Predicted MEDV × 1000</b>
+        </p>
+
+        {/* Input Grid */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit,minmax(250px,1fr))",
+            gap: 20
+          }}
+        >
+          {FIELDS.map((f, i) => (
+            <div key={f} className="calc-input">
+              <label style={{ fontWeight: 600 }}>{f}</label>
               <input
                 type="number"
                 value={vals[i]}
+                placeholder={f}
                 onChange={(e) => update(i, e.target.value)}
-                placeholder={f.key}
                 style={{ marginTop: 6 }}
               />
             </div>
           ))}
         </div>
 
-        <button onClick={calculate} style={{ marginTop: 20, width: "100%" }}>
-          Predict Price
+        <button
+          onClick={calculate}
+          style={{
+            marginTop: 20,
+            width: "100%",
+            fontSize: 16
+          }}
+        >
+          Calculate MEDV
         </button>
 
-        {pred !== null && (
-          <div className="glass-card" style={{ marginTop: 18, textAlign: "center" }}>
-            <div style={{ fontSize: 20, fontWeight: 700 }}>
-              Estimated Price: <span style={{ color: "#ffd369" }}>{pred} × $1000/-</span>
-            </div>
-            <div style={{ fontSize: 13, marginTop: 6, color: "#ddd" }}>
-              Model: ONNX Runtime Web (High Accuracy)
+        {result !== null && (
+          <div className="glass-card" style={{ marginTop: 22, textAlign: "center" }}>
+            <h3>
+              Predicted MEDV:{" "}
+              <span style={{ color: "#ffd369" }}>
+                {result.toLocaleString()}
+              </span>
+            </h3>
+            <div style={{ fontSize: 13, opacity: 0.8 }}>
+              (MEDV × 1000, based on sklearn LinearRegression)
             </div>
           </div>
         )}
