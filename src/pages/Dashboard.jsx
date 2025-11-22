@@ -3,7 +3,7 @@ import { collection, onSnapshot, doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { Link } from "react-router-dom";
 import { useAuth } from "../auth.jsx";
-import bg from "../assets/web_bg.png";
+import bg from "../assets/web_bg2.png";
 
 export default function Dashboard() {
   const { user, userDoc } = useAuth();
