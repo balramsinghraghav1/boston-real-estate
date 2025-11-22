@@ -1,6 +1,5 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-
 import Home from "./pages/Home";
 import Properties from "./pages/Properties";
 import Detail from "./pages/Detail";
@@ -12,7 +11,6 @@ import Signup from "./pages/Signup";
 import Favorites from "./pages/Favorites";
 import Profile from "./pages/Profile";
 import Calculator from "./pages/Calculator";
-
 import { AuthProvider, useAuth } from "./auth.jsx";
 
 function Header() {
@@ -42,29 +40,17 @@ function Header() {
           <Link to="/calculator">Calculator</Link>
         </nav>
 
-        {/* AUTH BUTTONS */}
+        {/* RIGHT SECTION */}
         <div className="top-actions">
           {!user && (
             <>
-              <Link to="/login">
-                <button className="btn-nav">Login</button>
-              </Link>
-              <Link to="/signup">
-                <button className="btn-nav">Signup</button>
-              </Link>
+              <Link to="/login"><button className="btn-nav">Login</button></Link>
+              <Link to="/signup"><button className="btn-nav">Signup</button></Link>
             </>
           )}
 
-          {user && (
-            <>
-              <Link to="/profile">
-                <button className="btn-nav">Profile</button>
-              </Link>
-              <button className="btn-nav" onClick={logout}>
-                Logout
-              </button>
-            </>
-          )}
+          {user && <Link to="/profile"><button className="btn-nav">Profile</button></Link>}
+          {user && <button className="btn-nav" onClick={logout}>Logout</button>}
         </div>
       </div>
     </header>
@@ -77,9 +63,7 @@ export default function App() {
       <BrowserRouter>
         <Header />
 
-        {/* ❌ REMOVED GLOBAL page-wrapper  
-            ✔ Now each page handles its own background correctly */}
-        
+        {/* 🔥 REMOVE DOUBLE PAGE WRAPPER - pages handle their own */}
         <Routes>
           <Route path="/" element={<Home />} />
 
@@ -98,7 +82,6 @@ export default function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/calculator" element={<Calculator />} />
         </Routes>
-
       </BrowserRouter>
     </AuthProvider>
   );
