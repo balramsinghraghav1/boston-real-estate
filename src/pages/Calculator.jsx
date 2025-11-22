@@ -31,7 +31,7 @@ export default function Calculator() {
   // 🔥 Load ONNX model once
   useEffect(() => {
     async function loadModel() {
-      const loaded = await ort.InferenceSession.create("/public/model.onnx");
+      const loaded = await ort.InferenceSession.create("/src/model/model.onnx");
       setSession(loaded);
     }
     loadModel();
