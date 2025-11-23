@@ -3,7 +3,6 @@ import * as ort from "onnxruntime-web";
 import bg from "../assets/web_bg2.png"; // Ensure this matches your file structure
 
 export default function Calculator() {
-  // Updated fields with descriptive labels
   const fields = [
     { key: "crim", label: "CRIM – Per capita crime rate by town" },
     { key: "zn", label: "ZN – Land zoned for large lots" },
@@ -28,16 +27,15 @@ export default function Calculator() {
   useEffect(() => {
     async function loadModel() {
       try {
-        // CONFIGURE WASM PATHS
-        // Explicitly pointing to the files you uploaded to public/
-        ort.env.wasm.wasmPaths = {
-          'ort-wasm-simd-threaded.wasm': '/ort-wasm-simd-threaded.wasm',
-          'ort-wasm-simd-threaded.jsep.wasm': '/ort-wasm-simd-threaded.jsep.wasm'
-        };
-
+        // --- THE MAGIC FIX ---
+        // Instead of local files, we use the official CDN. 
+        // This avoids all "missing file" and "security header" errors.
+        ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.0/dist/";
+        
+        // Load the model from your public folder
         const s = await ort.InferenceSession.create("/model.onnx");
         setSession(s);
-        console.log("Model loaded successfully");
+        console.log("Model loaded successfully via CDN");
       } catch (err) {
         console.error("ONNX LOAD ERROR:", err);
         alert("Model load failed. Check console for details.");
@@ -55,21 +53,15 @@ export default function Calculator() {
   const calculate = async () => {
     if (!session) return alert("Model not loaded yet!");
 
-    // 1. Prepare Input: Convert strings to numbers
     const inputData = Float32Array.from(vals.map(v => Number(v) || 0));
-
-    // 2. Create Tensor: Shape [1, 13]
     const tensor = new ort.Tensor("float32", inputData, [1, 13]);
 
     try {
-      // 3. Run Inference with dynamic input name detection
       const feeds = {};
       const inputName = session.inputNames[0];
       feeds[inputName] = tensor;
 
       const result = await session.run(feeds);
-      
-      // 4. Get Output
       const outputName = session.outputNames[0];
       const output = result[outputName].data[0];
 
@@ -94,7 +86,6 @@ export default function Calculator() {
         }}>
           {fields.map((field, i) => (
             <div key={field.key}>
-              {/* Using field.label to show the full description */}
               <label style={{ fontWeight: 600, display: "block", marginBottom: 5 }}>
                 {field.label}
               </label>
