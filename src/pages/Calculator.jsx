@@ -120,7 +120,7 @@ export default function Calculator() {
         {pred !== null && (
           <div className="glass-card" style={{ marginTop: 18, textAlign: "center" }}>
             <div style={{ fontSize: 18, fontWeight: 700 }}>
-              Predicted MEDV: <span style={{ color: "#ffd369" }}>{pred}</span>
+              Predicted Price(MEDV): <span style={{ color: "#ffd369" }}>{pred} x $1000</span>
             </div>
           </div>
         )}
