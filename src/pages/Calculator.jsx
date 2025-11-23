@@ -1,12 +1,23 @@
 import React, { useState, useEffect } from "react";
 import * as ort from "onnxruntime-web";
-import bg from "../assets/web_bg2.png";
+import bg from "../assets/web_bg2.png"; // Ensure this matches your file structure
 
 export default function Calculator() {
+  // Updated fields with descriptive labels
   const fields = [
-    "CRIM","ZN","INDUS","CHAS","NOX",
-    "RM","AGE","DIS","RAD","TAX",
-    "PTRATIO","B","LSTAT"
+    { key: "crim", label: "CRIM – Per capita crime rate by town" },
+    { key: "zn", label: "ZN – Land zoned for large lots" },
+    { key: "indus", label: "INDUS – Non-retail business acres" },
+    { key: "chas", label: "CHAS – Charles River dummy (0/1)" },
+    { key: "nox", label: "NOX – Nitrogen oxide concentration" },
+    { key: "rm", label: "RM – Avg rooms per house" },
+    { key: "age", label: "AGE – Old homes proportion (%)" },
+    { key: "dis", label: "DIS – Employment distance index" },
+    { key: "rad", label: "RAD – Highway accessibility index" },
+    { key: "tax", label: "TAX – Property tax rate" },
+    { key: "ptratio", label: "PTRATIO – Student-teacher ratio" },
+    { key: "b", label: "B – Demographic factor" },
+    { key: "lstat", label: "LSTAT – % lower status population" }
   ];
 
   const [vals, setVals] = useState(Array(13).fill(""));
@@ -17,11 +28,19 @@ export default function Calculator() {
   useEffect(() => {
     async function loadModel() {
       try {
-        const s = await ort.InferenceSession.create("/model.onnx"); 
+        // CONFIGURE WASM PATHS
+        // Explicitly pointing to the files you uploaded to public/
+        ort.env.wasm.wasmPaths = {
+          'ort-wasm-simd-threaded.wasm': '/ort-wasm-simd-threaded.wasm',
+          'ort-wasm-simd-threaded.jsep.wasm': '/ort-wasm-simd-threaded.jsep.wasm'
+        };
+
+        const s = await ort.InferenceSession.create("/model.onnx");
         setSession(s);
+        console.log("Model loaded successfully");
       } catch (err) {
         console.error("ONNX LOAD ERROR:", err);
-        alert("Model load failed. Check console.");
+        alert("Model load failed. Check console for details.");
       }
     }
     loadModel();
@@ -36,18 +55,28 @@ export default function Calculator() {
   const calculate = async () => {
     if (!session) return alert("Model not loaded yet!");
 
-    const input = Float32Array.from(vals.map(v => Number(v) || 0));
+    // 1. Prepare Input: Convert strings to numbers
+    const inputData = Float32Array.from(vals.map(v => Number(v) || 0));
 
-    const tensor = new ort.Tensor("float32", input, [1, 13]);
+    // 2. Create Tensor: Shape [1, 13]
+    const tensor = new ort.Tensor("float32", inputData, [1, 13]);
 
     try {
-      const result = await session.run({ input: tensor });
-      const output = result.output.data[0];
+      // 3. Run Inference with dynamic input name detection
+      const feeds = {};
+      const inputName = session.inputNames[0];
+      feeds[inputName] = tensor;
+
+      const result = await session.run(feeds);
+      
+      // 4. Get Output
+      const outputName = session.outputNames[0];
+      const output = result[outputName].data[0];
 
       setPred(output.toFixed(2));
     } catch (err) {
-      console.error(err);
-      alert("Prediction failed");
+      console.error("PREDICTION ERROR:", err);
+      alert("Prediction failed. Check console.");
     }
   };
 
@@ -63,19 +92,24 @@ export default function Calculator() {
           gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
           gap: 20
         }}>
-          {fields.map((f, i) => (
-            <div key={i}>
-              <label style={{ fontWeight: 600 }}>{f}</label>
+          {fields.map((field, i) => (
+            <div key={field.key}>
+              {/* Using field.label to show the full description */}
+              <label style={{ fontWeight: 600, display: "block", marginBottom: 5 }}>
+                {field.label}
+              </label>
               <input
                 type="number"
                 value={vals[i]}
                 onChange={(e) => update(i, e.target.value)}
+                placeholder="0"
+                style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }}
               />
             </div>
           ))}
         </div>
 
-        <button onClick={calculate} style={{ marginTop: 20, width: "100%" }}>
+        <button onClick={calculate} style={{ marginTop: 20, width: "100%", padding: "10px", fontWeight: "bold", cursor: "pointer" }}>
           Calculate Price
         </button>
 
@@ -93,5 +127,3 @@ export default function Calculator() {
     </div>
   );
 }
-
-
