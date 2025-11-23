@@ -83,7 +83,23 @@ export default function Signup() {
           <label style={{ marginTop: 12, fontWeight: 600 }}>
             Role (choose one)
           </label>
-          <select value={role} onChange={(e) => setRole(e.target.value)}>
+          
+          {/* UPDATED SELECT ELEMENT */}
+          <select 
+            value={role} 
+            onChange={(e) => setRole(e.target.value)}
+            style={{
+                color: "black",           // Text is black
+                backgroundColor: "white", // Background is white
+                padding: "10px",          // Added padding for better look
+                borderRadius: "5px",      // Rounded corners
+                border: "none",           // Remove default border
+                width: "100%",            // Full width
+                cursor: "pointer",
+                marginTop: "5px"
+            }}
+          >
+            {/* Options will inherit Black Text / White BG from the select style above */}
             <option value="buyer">Buyer</option>
             <option value="dealer">Dealer</option>
           </select>
