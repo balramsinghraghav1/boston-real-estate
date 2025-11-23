@@ -93,7 +93,6 @@ cd boston-real-estate
 
 
 
-text
 
 ### 2. Install dependencies
 
@@ -101,7 +100,6 @@ npm install
 
 
 
-text
 
 ### 3. Configure Environment Variables
 
@@ -116,7 +114,6 @@ VITE_FIREBASE_APP_ID=your_app_id
 
 
 
-text
 
 ### 4. Run Locally
 
@@ -124,7 +121,6 @@ npm run dev
 
 
 
-text
 
 The app will launch at [http://localhost:5173](http://localhost:5173).
 
