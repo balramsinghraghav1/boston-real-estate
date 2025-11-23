@@ -1,12 +1,8 @@
-import React, { useState } from "react";
-import * as ort from "onnxruntime-web"; 
-import bg from "../assets/web_bg2.png";
+import React, { useState, useEffect } from "react";
+import * as ort from "onnxruntime-web";
+import bg from "../assets/web_bg.png";
 
-/*
- Order of features:
- ["CRIM","ZN","INDUS","CHAS","NOX","RM","AGE","DIS","RAD","TAX","PTRATIO","B","LSTAT"]
-*/
-
+export default function Calculator() {
 const fields = [
   { key: "crim", label: "CRIM – Per capita crime rate by town" },
   { key: "zn", label: "ZN – Land zoned for large lots" },
@@ -23,93 +19,85 @@ const fields = [
   { key: "lstat", label: "LSTAT – % lower status population" }
 ];
 
-export default function Calculator() {
-  const [inputVals, setInputVals] = useState(Array(13).fill(""));
-  const [prediction, setPrediction] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [vals, setVals] = useState(Array(13).fill(""));
+  const [pred, setPred] = useState(null);
+  const [session, setSession] = useState(null);
 
-  const updateInput = (i, v) => {
-    const arr = [...inputVals];
-    arr[i] = v;
-    setInputVals(arr);
-  };
+  // ---------------------------
+  // LOAD ONNX MODEL
+  // ---------------------------
+  useEffect(() => {
+    async function loadModel() {
+      try {
+        ort.env.wasm.wasmPaths =
+          "https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/";
 
-  // Run ONNX model
-  const runONNX = async () => {
-    try {
-      setLoading(true);
-      const session = await ort.InferenceSession.create("/model.onnx");
-
-      // Convert inputs to float32 tensor
-      const inputTensor = new ort.Tensor(
-        "float32",
-        Float32Array.from(inputVals.map((v) => parseFloat(v) || 0)),
-        [1, 13]
-      );
-
-      const outputs = await session.run({ input: inputTensor });
-      const predictedValue = outputs.output.data[0];
-
-      setPrediction(predictedValue.toFixed(2));
-      setLoading(false);
-    } catch (e) {
-      console.error(e);
-      alert("Model load failed. Check console.");
-      setLoading(false);
+        const s = await ort.InferenceSession.create("/model.onnx");
+        setSession(s);
+      } catch (err) {
+        console.error("ONNX load error:", err);
+        alert("Model load failed. Check console.");
+      }
     }
+    loadModel();
+  }, []);
+
+  const update = (i, val) => {
+    const copy = [...vals];
+    copy[i] = val;
+    setVals(copy);
   };
+
+  // ---------------------------
+  // RUN INFERENCE
+  // ---------------------------
+  async function calculate() {
+    if (!session) {
+      alert("Model still loading...");
+      return;
+    }
+
+    const inputArr = Float32Array.from(
+      vals.map(v => parseFloat(v) || 0)
+    );
+
+    const tensor = new ort.Tensor("float32", inputArr, [1, 13]);
+
+    const output = await session.run({ input: tensor });
+    const value = output.output.data[0];
+
+    setPred(value);
+  }
 
   return (
-    <div
-      className="page-wrapper"
-      style={{
-        backgroundImage: `url(${bg})`,
-      }}
-    >
-      <h2>Boston Housing Price Calculator (ONNX Model)</h2>
+    <div className="page-wrapper" style={{ backgroundImage: `url(${bg})` }}>
+      <h2>Boston Housing Price Calculator</h2>
 
-      <div className="glass-card" style={{ maxWidth: 900, margin: "auto" }}>
-        <p>Prediction (MEDV): Value is in $1000 units.</p>
+      <div className="glass-card" style={{ maxWidth: 900, margin: "auto", marginTop: 25 }}>
+        <p>Enter the 13 Boston Housing features to get the predicted price.</p>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))",
-            gap: "20px",
-          }}
-        >
-          {fields.map((f, i) => (
-            <div key={i}>
-              <label style={{ fontWeight: 600 }}>
-                {i + 1}. {f.label}
-              </label>
+        <div className="calc-grid">
+          {FIELDS.map((f, i) => (
+            <div key={i} className="calc-input">
+              <label>{f}</label>
               <input
                 type="number"
-                placeholder={f.key}
-                value={inputVals[i]}
-                onChange={(e) => updateInput(i, e.target.value)}
+                value={vals[i]}
+                placeholder={f}
+                onChange={(e) => update(i, e.target.value)}
               />
             </div>
           ))}
         </div>
 
-        <button
-          onClick={runONNX}
-          style={{ marginTop: 25, width: "100%" }}
-          disabled={loading}
-        >
-          {loading ? "Calculating..." : "Predict Price"}
+        <button onClick={calculate} style={{ width: "100%", marginTop: 20 }}>
+          Predict Price
         </button>
 
-        {prediction !== null && (
-          <div className="glass-card" style={{ marginTop: 20, textAlign: "center" }}>
-            <h3>
-              Estimated MEDV:{" "}
-              <span style={{ color: "#ffd369" }}>{prediction} × $1000</span>
-            </h3>
-            <p style={{ fontSize: 12, opacity: 0.7 }}>
-              Model Loaded: ONNX Runtime Web
-            </p>
+        {pred !== null && (
+          <div className="glass-card" style={{ marginTop: 20, padding: 20 }}>
+            <h3>Predicted MEDV: {pred.toFixed(2)}</h3>
+            <p style={{ opacity: 0.7 }}>(Value is in dataset units × 1000)</p>
           </div>
         )}
       </div>
