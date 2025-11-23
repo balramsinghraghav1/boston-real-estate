@@ -7,7 +7,7 @@
 
 A modern, full-stack real estate application featuring role-based access control, real-time database management, and **client-side AI price prediction**.
 
-Built with **React + Vite** and **Firebase**, this project integrates a pre-trained Random Forest model using **ONNX Runtime Web** to predict housing prices in real-time directly in the browser, without needing a backend Python server.
+Built with **React + Vite** and **Firebase**, this project integrates a pre-trained **Random Forest Regressor** model using **ONNX Runtime Web**. It predicts housing prices in real-time directly in the browser with high accuracy (**$R^2$ Score: 0.98**), without needing a backend Python server.
 
 ---
 
@@ -21,12 +21,12 @@ Built with **React + Vite** and **Firebase**, this project integrates a pre-trai
 
 ### 🏘 Property Management
 - **CRUD Operations:** Dealers can manage listings with real-time updates using Firestore.
-- **Image Storage:** Property images are securely uploaded and retrieved via Firebase Storage.
+- **Image Handling:** Dealers provide external **Image URLs** to seamlessly showcase properties.
 - **Glassmorphic UI:** A modern, responsive interface designed for mobile and desktop.
 
 ### 📈 AI Price Predictor (ONNX)
-- **Client-Side Inference:** Runs a Machine Learning model directly in the browser using WebAssembly.
-- **Zero Latency:** No API calls to external ML servers; predictions happen instantly.
+- **High Accuracy:** Uses a Random Forest model with an **$R^2$ score of 0.98**.
+- **Client-Side Inference:** Runs directly in the browser using WebAssembly for zero latency.
 - **Dataset:** Trained on the standard 13-feature Boston Housing dataset.
 
 ---
@@ -34,8 +34,8 @@ Built with **React + Vite** and **Firebase**, this project integrates a pre-trai
 ## 🛠 Tech Stack
 
 * **Frontend:** React (v18), Vite, React Router DOM
-* **Backend as a Service:** Firebase (Auth, Firestore, Storage)
-* **Machine Learning:** Scikit-Learn (Training), ONNX Runtime Web (Inference)
+* **Backend as a Service:** Firebase (Authentication, Firestore Database)
+* **Machine Learning:** Scikit-Learn (Random Forest), ONNX Runtime Web (Inference)
 * **Styling:** CSS3 (Glassmorphism design system)
 * **Deployment:** Vercel
 
@@ -47,7 +47,7 @@ Built with **React + Vite** and **Firebase**, this project integrates a pre-trai
 boston-real-estate/
 │
 ├── public/
-│   ├── model.onnx            # AI Model file
+│   ├── model.onnx            # Random Forest AI Model
 │   └── ort-wasm-simd.wasm    # ONNX WebAssembly backend (v1.18.0)
 │
 ├── src/
@@ -84,20 +84,28 @@ boston-real-estate/
 └── vite.config.js
 ```
 
- ⚡ Installation & Setup
-1. Clone the repository
-Bash
+## ⚡ Installation & Setup
 
-git clone [https://github.com/balramsinghraghav1/boston-real-estate.git](https://github.com/balramsinghraghav1/boston-real-estate.git)
+### 1. Clone the repository
+
+git clone https://github.com/balramsinghraghav1/boston-real-estate.git
 cd boston-real-estate
-2. Install dependencies
-Bash
+
+
+
+text
+
+### 2. Install dependencies
 
 npm install
-3. Configure Environment Variables
-Create a .env file in the root directory and add your Firebase credentials:
 
-Code snippet
+
+
+text
+
+### 3. Configure Environment Variables
+
+Create a `.env` file in the root directory and add your Firebase credentials:
 
 VITE_FIREBASE_API_KEY=your_api_key
 VITE_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
@@ -105,59 +113,64 @@ VITE_FIREBASE_PROJECT_ID=your_project_id
 VITE_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
 VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 VITE_FIREBASE_APP_ID=your_app_id
-4. Run Locally
-Bash
+
+
+
+text
+
+### 4. Run Locally
 
 npm run dev
-The app will launch at http://localhost:5173.
 
-🤖 AI Model Usage
-The application uses ONNX Runtime Web to load the model.onnx file located in the public folder. It uses a specific WASM backend (ort-wasm-simd.wasm) for performance.
 
-Features utilized for prediction:
 
-CRIM (Crime rate)
+text
 
-ZN (Residential land zone)
+The app will launch at [http://localhost:5173](http://localhost:5173).
 
-INDUS (Business acres)
+---
 
-CHAS (Charles River dummy var)
+## 🤖 AI Model Usage
 
-NOX (Nitric oxides concentration)
+The application uses ONNX Runtime Web to load the `model.onnx` file located in the `public` folder. It uses a specific WASM backend (`ort-wasm-simd.wasm`) for performance.
 
-RM (Average rooms)
+**Model Details:**
 
-AGE (Age of units)
+- Algorithm: Random Forest Regressor  
+- Performance: $R^2$ Score = 0.98
 
-DIS (Distance to employment)
+**Features utilized for prediction:**
 
-RAD (Highway accessibility)
+- CRIM (Crime rate)  
+- ZN (Residential land zone)  
+- INDUS (Business acres)  
+- CHAS (Charles River dummy var)  
+- NOX (Nitric oxides concentration)  
+- RM (Average rooms)  
+- AGE (Age of units)  
+- DIS (Distance to employment)  
+- RAD (Highway accessibility)  
+- TAX (Tax rate)  
+- PTRATIO (Pupil-teacher ratio)  
+- B (Black proportion)  
+- LSTAT (% lower status population)  
 
-TAX (Tax rate)
+---
 
-PTRATIO (Pupil-teacher ratio)
+## 🚀 Deployment
 
-B (Black proportion)
-
-LSTAT (% lower status population)
-
-🚀 Deployment
 This project is optimized for deployment on Vercel.
 
-Push your code to GitHub.
+1. Push your code to GitHub.  
+2. Import the project in Vercel.  
+3. Add the Environment Variables in the Vercel Dashboard.  
+4. **Important:** Ensure `model.onnx` and `ort-wasm-simd.wasm` are present in the `public/` folder before deploying.  
+5. Deploy!
 
-Import the project in Vercel.
+---
 
-Add the Environment Variables in the Vercel Dashboard.
+## ❤️ Credits
 
-Important: Ensure model.onnx and ort-wasm-simd.wasm are present in the public/ folder before deploying.
-
-Deploy!
-
-❤️ Credits
-Developer & UI Design: Balram Singh
-
-Machine Learning Dataset: Boston Housing Dataset (CMU StatLib)
-
-Technical Assistance: ChatGPT (OpenAI)
+- Developer & UI Design: Balram Singh  
+- Machine Learning Dataset: Boston Housing Dataset (CMU StatLib)  
+- Technical Assistance: ChatGPT (OpenAI)
