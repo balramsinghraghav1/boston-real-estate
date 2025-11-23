@@ -27,19 +27,17 @@ export default function Calculator() {
   useEffect(() => {
     async function loadModel() {
       try {
-        // --- FORCE USE OF v1.18.0 FILE ---
+        // --- v1.18.0 CONFIGURATION ---
         
-        // 1. Disable threading (The v1.18.0 file is single-threaded)
-        ort.env.wasm.numThreads = 1; 
+        // 1. Disable Proxy (Reliability fix for Vercel)
         ort.env.wasm.proxy = false;
 
-        // 2. Point to the file you just uploaded
+        // 2. Point to the file in your public folder
         ort.env.wasm.wasmPaths = {
-          'ort-wasm-simd.wasm': '/ort-wasm-simd.wasm',
-          'ort-wasm.wasm': '/ort-wasm-simd.wasm' // Fallback just in case
+          'ort-wasm-simd.wasm': '/ort-wasm-simd.wasm'
         };
 
-        // 3. Create Session
+        // 3. Load Model
         const s = await ort.InferenceSession.create("/model.onnx");
         setSession(s);
         setStatus("Ready to Calculate");
@@ -48,6 +46,7 @@ export default function Calculator() {
       } catch (err) {
         console.error("ONNX LOAD ERROR:", err);
         setStatus(`Error: ${err.message}`);
+        // This alerts the exact error if it fails
         alert(`Model load failed: ${err.message}`); 
       }
     }
