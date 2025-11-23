@@ -82,7 +82,9 @@ boston-real-estate/
 ├── index.html
 ├── package.json
 └── vite.config.js
-⚡ Installation & Setup
+```
+
+ ⚡ Installation & Setup
 1. Clone the repository
 Bash
 
