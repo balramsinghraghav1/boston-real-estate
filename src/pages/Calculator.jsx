@@ -22,31 +22,33 @@ export default function Calculator() {
   const [vals, setVals] = useState(Array(13).fill(""));
   const [pred, setPred] = useState(null);
   const [session, setSession] = useState(null);
+  const [status, setStatus] = useState("Loading model...");
 
-  // Load ONNX model ONCE
   useEffect(() => {
     async function loadModel() {
       try {
-        // --- CRITICAL FIX START ---
+        // --- FORCE USE OF v1.18.0 FILE ---
         
-        // 1. Disable multi-threading (This stops it from looking for the missing .mjs/.wasm files)
+        // 1. Disable threading (The v1.18.0 file is single-threaded)
         ort.env.wasm.numThreads = 1; 
-        
-        // 2. Disable proxy (Helps with stability on Vercel/Basic web hosts)
         ort.env.wasm.proxy = false;
 
-        // 3. Point to the CDN for the standard (non-threaded) files
-        // We use version 1.19.1 to match your package.json
-        ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.1/dist/";
-        
-        // --- CRITICAL FIX END ---
+        // 2. Point to the file you just uploaded
+        ort.env.wasm.wasmPaths = {
+          'ort-wasm-simd.wasm': '/ort-wasm-simd.wasm',
+          'ort-wasm.wasm': '/ort-wasm-simd.wasm' // Fallback just in case
+        };
 
+        // 3. Create Session
         const s = await ort.InferenceSession.create("/model.onnx");
         setSession(s);
-        console.log("Model loaded successfully");
+        setStatus("Ready to Calculate");
+        console.log("Model loaded successfully!");
+
       } catch (err) {
         console.error("ONNX LOAD ERROR:", err);
-        alert("Model load failed. Check console for details.");
+        setStatus(`Error: ${err.message}`);
+        alert(`Model load failed: ${err.message}`); 
       }
     }
     loadModel();
@@ -76,7 +78,7 @@ export default function Calculator() {
       setPred(output.toFixed(2));
     } catch (err) {
       console.error("PREDICTION ERROR:", err);
-      alert("Prediction failed. Check console.");
+      alert(`Prediction failed: ${err.message}`);
     }
   };
 
@@ -84,7 +86,11 @@ export default function Calculator() {
     <div className="page-wrapper" style={{ backgroundImage: `url(${bg})` }}>
       <h2>Boston Price Calculator (ONNX Model)</h2>
 
-      <div className="glass-card" style={{ maxWidth: 900, margin: "auto", marginTop: 25 }}>
+      <div style={{ textAlign: "center", color: session ? "#4caf50" : "#f44336", fontWeight: "bold", marginBottom: 10 }}>
+        Status: {status}
+      </div>
+
+      <div className="glass-card" style={{ maxWidth: 900, margin: "auto" }}>
         <p>Enter the 13 Boston Housing features below.</p>
 
         <div style={{
@@ -116,9 +122,6 @@ export default function Calculator() {
           <div className="glass-card" style={{ marginTop: 18, textAlign: "center" }}>
             <div style={{ fontSize: 18, fontWeight: 700 }}>
               Predicted MEDV: <span style={{ color: "#ffd369" }}>{pred}</span>
-            </div>
-            <div style={{ fontSize: 13, marginTop: 6, color: "#ddd" }}>
-              Powered by ONNX runtime-web
             </div>
           </div>
         )}
