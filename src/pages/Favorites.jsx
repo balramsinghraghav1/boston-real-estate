@@ -79,7 +79,7 @@ export default function Favorites() {
                 <h3 style={{ marginBottom: 6 }}>{p.title}</h3>
               </Link>
               <div className="small">
-                ₹ {p.price} • {p.address}
+                $ {p.price} • {p.address}
               </div>
 
               <button
