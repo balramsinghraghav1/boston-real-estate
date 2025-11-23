@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import * as ort from "onnxruntime-web";
-import bg from "../assets/web_bg2.png"; // Ensure this matches your file structure
+import bg from "../assets/web_bg2.png"; 
 
 export default function Calculator() {
   const fields = [
@@ -27,15 +27,23 @@ export default function Calculator() {
   useEffect(() => {
     async function loadModel() {
       try {
-        // --- THE MAGIC FIX ---
-        // Instead of local files, we use the official CDN. 
-        // This avoids all "missing file" and "security header" errors.
-        ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.0/dist/";
+        // --- CRITICAL FIX START ---
         
-        // Load the model from your public folder
+        // 1. Disable multi-threading (This stops it from looking for the missing .mjs/.wasm files)
+        ort.env.wasm.numThreads = 1; 
+        
+        // 2. Disable proxy (Helps with stability on Vercel/Basic web hosts)
+        ort.env.wasm.proxy = false;
+
+        // 3. Point to the CDN for the standard (non-threaded) files
+        // We use version 1.19.1 to match your package.json
+        ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.1/dist/";
+        
+        // --- CRITICAL FIX END ---
+
         const s = await ort.InferenceSession.create("/model.onnx");
         setSession(s);
-        console.log("Model loaded successfully via CDN");
+        console.log("Model loaded successfully");
       } catch (err) {
         console.error("ONNX LOAD ERROR:", err);
         alert("Model load failed. Check console for details.");
