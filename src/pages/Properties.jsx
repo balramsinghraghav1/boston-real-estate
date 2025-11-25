@@ -85,26 +85,41 @@ export default function Properties() {
           onChange={(e) => setQ(e.target.value)}
         />
 
+        {/* MODIFIED SECTION: Range Inputs separated into blocks */}
         <div className="range-row" style={{ marginTop: 12 }}>
-          <label className="small">Min Price</label>
-          <input
-            type="range"
-            min="0"
-            max="500000"
-            value={min}
-            onChange={(e) => setMin(Number(e.target.value))}
-          />
-          <span className="small">{min}</span>
+          
+          {/* Min Price Block */}
+          <div style={{ marginBottom: 15 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
+              <label className="small">Min Price</label>
+              <span className="small">{min}</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="500000"
+              value={min}
+              onChange={(e) => setMin(Number(e.target.value))}
+              style={{ width: "100%" }}
+            />
+          </div>
 
-          <label className="small">Max Price</label>
-          <input
-            type="range"
-            min="0"
-            max="5000000"
-            value={max}
-            onChange={(e) => setMax(Number(e.target.value))}
-          />
-          <span className="small">{max}</span>
+          {/* Max Price Block */}
+          <div>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
+              <label className="small">Max Price</label>
+              <span className="small">{max}</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="5000000"
+              value={max}
+              onChange={(e) => setMax(Number(e.target.value))}
+              style={{ width: "100%" }}
+            />
+          </div>
+
         </div>
       </div>
 
@@ -136,10 +151,10 @@ export default function Properties() {
               <div style={{ padding: 14 }}>
                 <h3 style={{ margin: 0, fontSize: 20 }}>{p.title}</h3>
 
-          <div style={{ marginTop: 6 }}>
-              <strong style={{ display: "block" }}>$ {p.price}</strong>
+                <div style={{ marginTop: 6 }}>
+                  <strong style={{ display: "block" }}>$ {p.price}</strong>
                   <span className="small" style={{ display: "block", marginTop: 6 }}>
-            {p.address}
+                    {p.address}
                   </span>
                 </div>
               </div>
