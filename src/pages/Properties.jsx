@@ -94,8 +94,8 @@ export default function Properties() {
             value={min}
             onChange={(e) => setMin(Number(e.target.value))}
           />
-          <span className="small">{min}/-</span>
-            <br>
+          <span className="small">{min}</span>
+
           <label className="small">Max Price</label>
           <input
             type="range"
@@ -104,7 +104,7 @@ export default function Properties() {
             value={max}
             onChange={(e) => setMax(Number(e.target.value))}
           />
-          <span className="small">{max}/-</span>
+          <span className="small">{max}</span>
         </div>
       </div>
 
