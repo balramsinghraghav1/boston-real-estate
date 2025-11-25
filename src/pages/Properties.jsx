@@ -94,17 +94,17 @@ export default function Properties() {
             value={min}
             onChange={(e) => setMin(Number(e.target.value))}
           />
-          <span className="small">{min}</span>
-
+          <span className="small">{min}/-</span>
+            <br>
           <label className="small">Max Price</label>
           <input
             type="range"
             min="0"
-            max="500000"
+            max="5000000"
             value={max}
             onChange={(e) => setMax(Number(e.target.value))}
           />
-          <span className="small">{max}</span>
+          <span className="small">{max}/-</span>
         </div>
       </div>
 
