@@ -28,6 +28,7 @@ Built with **React + Vite** and **Firebase**, this project integrates a pre-trai
 - **High Accuracy:** Uses a Random Forest model with an **$R^2$ score of 0.98**.
 - **Client-Side Inference:** Runs directly in the browser using WebAssembly for zero latency.
 - **Dataset:** Trained on the standard 13-feature Boston Housing dataset.
+- **Dataset Source:** The StatLib library(CMU).
 
 ---
 
