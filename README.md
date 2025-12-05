@@ -168,7 +168,7 @@ This project is optimized for deployment on Vercel.
 
 ## ❤️ Credits
 
-- Frontend & UI Design: Balram singh
+- Frontend & UI Design: Kunal Chaudhry & Sumit Bhardwaj
 - Backend & ML : Balram singh
 - Machine Learning Dataset: Boston Housing Dataset (CMU StatLib)  
 - Technical Assistance: ChatGPT (OpenAI)
