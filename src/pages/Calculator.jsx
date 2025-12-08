@@ -1,3 +1,4 @@
+// Calculator frontend by deepak pandey
 import React, { useState, useEffect } from "react";
 import * as ort from "onnxruntime-web";
 import bg from "../assets/web_bg2.png"; 
