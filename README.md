@@ -39,6 +39,7 @@ Built with **React + Vite** and **Firebase**, this project integrates a pre-trai
 * **Machine Learning:** Scikit-Learn (Random Forest), ONNX Runtime Web (Inference)
 * **Styling:** CSS3 (Glassmorphism design system)
 * **Deployment:** Vercel
+* **Deployment Link:** https://boston-real-estatev04.vercel.app/
 
 ---
 
@@ -168,7 +169,7 @@ This project is optimized for deployment on Vercel.
 
 ## ❤️ Credits
 
-- Frontend & UI Design: Deepak pandey
+- Frontend & UI Design: Balram singh
 - Backend & ML : Balram singh
 - Machine Learning Dataset: Boston Housing Dataset (CMU StatLib)  
 - Technical Assistance: ChatGPT (OpenAI)
